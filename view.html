@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script>
+    async function loadModel() {
+      const modelUrl = 'https://ambica-p.github.io/asltrans/model.json';
+      const model = await tf.loadGraphModel(modelUrl);
+      window.model = model;
+      console.log("Model loaded successfully");
+    }
+
+    async function predict(imageDataUrl) {
+      const img = new Image();
+      img.src = imageDataUrl;
+      img.onload = async () => {
+        const tensor = tf.browser.fromPixels(img).resizeNearestNeighbor([224, 224]).toFloat().expandDims();
+        const predictions = await window.model.predict(tensor).data();
+        console.log(predictions);
+        ThunkableWebviewerExtension.postMessage(predictions);
+      };
+    }
+
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'predict') {
+        predict(event.data.imageDataUrl);
+      }
+    });
+
+    loadModel();
+  </script>
+</head>
+<body>
+</body>
+</html>
