@@ -22,8 +22,8 @@
     }
 
     window.addEventListener('message', function(event) {
-      if (event.data.type === 'predict') {
-        predict(event.data.imageDataUrl);
+      if (event.data.startsWith('image:')) {
+        predict(event.data.substring(6));
       }
     });
 
