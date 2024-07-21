@@ -1,23 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <title>TensorFlow.js Model</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <style>
+    #status {
+      font-size: 20px;
+      color: green;
+    }
+    #predictions {
+      font-size: 16px;
+      color: blue;
+    }
+  </style>
   <script>
     async function loadModel() {
-      const modelUrl = 'https://ambica-p.github.io/asltrans/model.json';
-      const model = await tf.loadGraphModel(modelUrl);
-      window.model = model;
-      console.log("Model loaded successfully");
+      const statusElement = document.getElementById('status');
+      statusElement.textContent = 'Loading model...';
+      
+      try {
+        const modelUrl = 'https://your-username.github.io/teachable-machine-model/model.json';
+        window.model = await tf.loadGraphModel(modelUrl);
+        statusElement.textContent = 'Model loaded successfully!';
+      } catch (error) {
+        statusElement.textContent = 'Failed to load model.';
+        console.error('Error loading model:', error);
+      }
     }
 
     async function predict(imageDataUrl) {
+      const statusElement = document.getElementById('status');
+      const predictionsElement = document.getElementById('predictions');
+      
+      statusElement.textContent = 'Making prediction...';
+      
       const img = new Image();
       img.src = imageDataUrl;
       img.onload = async () => {
-        const tensor = tf.browser.fromPixels(img).resizeNearestNeighbor([224, 224]).toFloat().expandDims();
-        const predictions = await window.model.predict(tensor).data();
-        console.log(predictions);
-        ThunkableWebviewerExtension.postMessage(predictions);
+        try {
+          const tensor = tf.browser.fromPixels(img).resizeNearestNeighbor([224, 224]).toFloat().expandDims();
+          const predictions = await window.model.predict(tensor).data();
+          statusElement.textContent = 'Prediction complete!';
+          predictionsElement.textContent = `Predictions: ${Array.from(predictions).join(', ')}`;
+          console.log(predictions);
+        } catch (error) {
+          statusElement.textContent = 'Error making prediction.';
+          console.error('Error making prediction:', error);
+        }
       };
     }
 
@@ -31,5 +60,8 @@
   </script>
 </head>
 <body>
+  <h1>TensorFlow.js Model Status</h1>
+  <div id="status">Loading model...</div>
+  <div id="predictions"></div>
 </body>
 </html>
