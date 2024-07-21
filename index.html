@@ -1,67 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>TensorFlow.js Model</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-  <style>
-    #status {
-      font-size: 20px;
-      color: green;
-    }
-    #predictions {
-      font-size: 16px;
-      color: blue;
-    }
-  </style>
-  <script>
-    async function loadModel() {
-      const statusElement = document.getElementById('status');
-      statusElement.textContent = 'Loading model...';
-      
-      try {
-        const modelUrl = 'https://your-username.github.io/teachable-machine-model/model.json';
-        window.model = await tf.loadGraphModel(modelUrl);
-        statusElement.textContent = 'Model loaded successfully!';
-      } catch (error) {
-        statusElement.textContent = 'Failed to load model.';
-        console.error('Error loading model:', error);
-      }
-    }
-
-    async function predict(imageDataUrl) {
-      const statusElement = document.getElementById('status');
-      const predictionsElement = document.getElementById('predictions');
-      
-      statusElement.textContent = 'Making prediction...';
-      
-      const img = new Image();
-      img.src = imageDataUrl;
-      img.onload = async () => {
-        try {
-          const tensor = tf.browser.fromPixels(img).resizeNearestNeighbor([224, 224]).toFloat().expandDims();
-          const predictions = await window.model.predict(tensor).data();
-          statusElement.textContent = 'Prediction complete!';
-          predictionsElement.textContent = `Predictions: ${Array.from(predictions).join(', ')}`;
-          console.log(predictions);
-        } catch (error) {
-          statusElement.textContent = 'Error making prediction.';
-          console.error('Error making prediction:', error);
-        }
-      };
-    }
-
-    window.addEventListener('message', function(event) {
-      if (event.data.startsWith('image:')) {
-        predict(event.data.substring(6));
-      }
-    });
-
-    loadModel();
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classifier</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>TensorFlow.js Model Status</h1>
-  <div id="status">Loading model...</div>
-  <div id="predictions"></div>
+    <div class="container">
+        <h1>Image Classifier</h1>
+        <input type="file" id="imageUpload" accept="image/*">
+        <img id="uploadedImage" src="" alt="Uploaded Image" style="display:none;">
+        <button id="classifyButton">Classify Image</button>
+        <div id="result"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
